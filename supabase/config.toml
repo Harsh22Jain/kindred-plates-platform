@@ -1,1 +1,7 @@
 project_id = "fsvogzeabgfkztpxmwea"
+
+[functions]
+enabled = true
+
+[functions.create-notification]
+verify_jwt = false

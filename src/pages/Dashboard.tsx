@@ -63,7 +63,7 @@ const Dashboard = () => {
       title: "Post Food Donation",
       description: "List surplus food items for those in need",
       icon: Package,
-      action: () => navigate("/donate"),
+      action: () => navigate("/create-donation"),
     },
     recipient: {
       title: "Browse Available Food",
@@ -75,7 +75,7 @@ const Dashboard = () => {
       title: "Available Deliveries",
       description: "Help deliver food to recipients",
       icon: Truck,
-      action: () => navigate("/volunteer"),
+      action: () => navigate("/matches"),
     },
   };
 
@@ -108,13 +108,13 @@ const Dashboard = () => {
             </Card>
           )}
 
-          <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/notifications")}>
+          <Card className="hover:shadow-medium transition-shadow cursor-pointer" onClick={() => navigate("/matches")}>
             <CardHeader>
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
                 <Bell className="w-6 h-6 text-accent" />
               </div>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>View your recent activity and alerts</CardDescription>
+              <CardTitle>My Matches</CardTitle>
+              <CardDescription>View and manage your food matches</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full">View All</Button>

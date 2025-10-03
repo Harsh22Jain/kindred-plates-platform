@@ -91,6 +91,12 @@ const Browse = () => {
     if (!user) return;
 
     try {
+      const { data: donation } = await supabase
+        .from("food_donations")
+        .select("title, donor_id")
+        .eq("id", donationId)
+        .single();
+
       const { error } = await supabase.from("donation_matches").insert({
         donation_id: donationId,
         recipient_id: user.id,
@@ -101,9 +107,22 @@ const Browse = () => {
 
       await supabase.from("food_donations").update({ status: "claimed" }).eq("id", donationId);
 
+      // Create notification for donor
+      if (donation) {
+        await supabase.functions.invoke("create-notification", {
+          body: {
+            user_id: donation.donor_id,
+            title: "Food Donation Claimed",
+            message: `Your "${donation.title}" donation has been claimed by a recipient.`,
+            type: "match",
+            related_id: donationId,
+          },
+        });
+      }
+
       toast({
         title: "Success!",
-        description: "Food donation claimed. Check your dashboard for details.",
+        description: "Food donation claimed. Check your matches for details.",
       });
     } catch (error: any) {
       toast({

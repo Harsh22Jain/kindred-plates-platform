@@ -8,6 +8,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Browse from "./pages/Browse";
 import Profile from "./pages/Profile";
+import CreateDonation from "./pages/CreateDonation";
+import Matches from "./pages/Matches";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

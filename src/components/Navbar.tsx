@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { Heart, LogOut, User as UserIcon } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -43,7 +44,10 @@ const Navbar = () => {
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link to="/browse">Browse Food</Link>
+                <Link to="/browse">Browse</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link to="/matches">Matches</Link>
               </Button>
               <Button asChild variant="ghost">
                 <Link to="/profile">
@@ -51,6 +55,7 @@ const Navbar = () => {
                   Profile
                 </Link>
               </Button>
+              <NotificationBell />
               <Button onClick={handleSignOut} variant="outline" size="sm">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
