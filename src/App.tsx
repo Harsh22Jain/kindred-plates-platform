@@ -26,6 +26,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/create-donation" element={<CreateDonation />} />
+          <Route path="/matches" element={<Matches />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
