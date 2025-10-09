@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Calendar, MapPin } from "lucide-react";
+import { Search, Calendar, MapPin, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FoodDonation {
@@ -171,46 +171,66 @@ const Browse = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
             {filteredDonations.map((donation) => (
               <Card key={donation.id} className="hover:shadow-medium transition-shadow">
-                {donation.image_url && (
-                  <img
-                    src={donation.image_url}
-                    alt={donation.title}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                )}
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-xl">{donation.title}</CardTitle>
-                    <Badge variant="secondary">{donation.food_type}</Badge>
+                <CardContent className="p-4">
+                  <div className="flex gap-4">
+                    {/* Thumbnail Image */}
+                    {donation.image_url ? (
+                      <img
+                        src={donation.image_url}
+                        alt={donation.title}
+                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Package className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                    )}
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-lg font-semibold truncate">{donation.title}</h3>
+                        <Badge variant="secondary" className="flex-shrink-0">
+                          {donation.food_type}
+                        </Badge>
+                      </div>
+                      
+                      {donation.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {donation.description}
+                        </p>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <span className="truncate">{donation.pickup_location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <span>Pickup: {new Date(donation.pickup_time_start).toLocaleDateString()}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold">Quantity: </span>
+                          {donation.quantity} {donation.unit}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Expires: </span>
+                          {new Date(donation.expiration_date).toLocaleDateString()}
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => handleClaim(donation.id)}
+                        className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent"
+                      >
+                        Claim This Food
+                      </Button>
+                    </div>
                   </div>
-                  <CardDescription>{donation.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
-                    <span>{donation.pickup_location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span>Pickup: {new Date(donation.pickup_time_start).toLocaleDateString()}</span>
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">Quantity: </span>
-                    {donation.quantity} {donation.unit}
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">Expires: </span>
-                    {new Date(donation.expiration_date).toLocaleDateString()}
-                  </div>
-                  <Button
-                    onClick={() => handleClaim(donation.id)}
-                    className="w-full bg-gradient-to-r from-primary to-accent"
-                  >
-                    Claim This Food
-                  </Button>
                 </CardContent>
               </Card>
             ))}
