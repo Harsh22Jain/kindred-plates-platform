@@ -5,13 +5,26 @@ import { User } from "@supabase/supabase-js";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Users, Truck, Bell } from "lucide-react";
+import { Package, Users, Truck, Bell, TrendingUp } from "lucide-react";
+
+interface Stats {
+  activeDonations: number;
+  completedMatches: number;
+  pendingMatches: number;
+  totalImpact: number;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<Stats>({
+    activeDonations: 0,
+    completedMatches: 0,
+    pendingMatches: 0,
+    totalImpact: 0,
+  });
 
   useEffect(() => {
     const checkUser = async () => {
@@ -49,6 +62,94 @@ const Dashboard = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStats = async () => {
+      // Fetch active donations (for donors)
+      const { count: activeDonations } = await supabase
+        .from("food_donations")
+        .select("*", { count: "exact", head: true })
+        .eq("donor_id", user.id)
+        .eq("status", "available");
+
+      // Fetch completed matches
+      const { count: completedMatches } = await supabase
+        .from("donation_matches")
+        .select("*", { count: "exact", head: true })
+        .or(`recipient_id.eq.${user.id},volunteer_id.eq.${user.id}`)
+        .eq("status", "completed");
+
+      // Fetch pending matches
+      const { count: pendingMatches } = await supabase
+        .from("donation_matches")
+        .select("*", { count: "exact", head: true })
+        .or(`recipient_id.eq.${user.id},volunteer_id.eq.${user.id}`)
+        .in("status", ["pending", "confirmed", "in_transit"]);
+
+      // Fetch total impact (all donations or matches)
+      let totalImpact = 0;
+      if (userRole === "donor") {
+        const { count } = await supabase
+          .from("food_donations")
+          .select("*", { count: "exact", head: true })
+          .eq("donor_id", user.id);
+        totalImpact = count || 0;
+      } else {
+        const { count } = await supabase
+          .from("donation_matches")
+          .select("*", { count: "exact", head: true })
+          .or(`recipient_id.eq.${user.id},volunteer_id.eq.${user.id}`);
+        totalImpact = count || 0;
+      }
+
+      setStats({
+        activeDonations: activeDonations || 0,
+        completedMatches: completedMatches || 0,
+        pendingMatches: pendingMatches || 0,
+        totalImpact,
+      });
+    };
+
+    fetchStats();
+
+    // Set up real-time subscriptions for live updates
+    const donationsChannel = supabase
+      .channel("donations_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "food_donations",
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    const matchesChannel = supabase
+      .channel("matches_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "donation_matches",
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(donationsChannel);
+      supabase.removeChannel(matchesChannel);
+    };
+  }, [user, userRole]);
 
   if (loading) {
     return (
@@ -123,20 +224,30 @@ const Dashboard = () => {
 
           <Card className="hover:shadow-medium transition-shadow">
             <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
+              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mb-4">
+                <TrendingUp className="w-6 h-6 text-success" />
+              </div>
+              <CardTitle>Live Stats</CardTitle>
+              <CardDescription>Real-time updates</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Active Donations</span>
-                <span className="font-semibold">0</span>
+            <CardContent className="space-y-3">
+              {userRole === "donor" && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Active Donations</span>
+                  <span className="font-semibold text-lg">{stats.activeDonations}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Pending Matches</span>
+                <span className="font-semibold text-lg">{stats.pendingMatches}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Completed Matches</span>
-                <span className="font-semibold">0</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Completed</span>
+                <span className="font-semibold text-lg">{stats.completedMatches}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Community Impact</span>
-                <span className="font-semibold">Getting Started</span>
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="text-sm font-medium">Total Impact</span>
+                <span className="font-bold text-xl text-primary">{stats.totalImpact}</span>
               </div>
             </CardContent>
           </Card>

@@ -157,6 +157,32 @@ export default function Matches() {
     }
   };
 
+  useEffect(() => {
+    if (!userRole) return;
+
+    fetchMatches();
+
+    // Set up real-time subscription for live tracking
+    const channel = supabase
+      .channel("matches_realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "donation_matches",
+        },
+        () => {
+          fetchMatches();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userRole, toast]);
+
   const updateMatchStatus = async (matchId: string, status: string) => {
     try {
       const { error } = await supabase
