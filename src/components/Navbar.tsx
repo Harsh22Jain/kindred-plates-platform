@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 import logo from "@/assets/nourishnet-logo.png";
 
 const Navbar = () => {
@@ -38,7 +39,8 @@ const Navbar = () => {
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">NourishNet</span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <>
               <Button asChild variant="ghost">

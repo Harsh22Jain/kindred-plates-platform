@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Users, Truck, Shield, CheckCircle, TrendingUp, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
 import heroImage from "@/assets/hero-nourishnet.jpg";
 
 const Index = () => {
@@ -185,6 +186,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* CTA Section */}
       <section className="py-20">

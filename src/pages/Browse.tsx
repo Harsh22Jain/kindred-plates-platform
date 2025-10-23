@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Calendar, MapPin, Package } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Calendar, MapPin, Package, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FoodDonation {
@@ -29,6 +30,7 @@ const Browse = () => {
   const { toast } = useToast();
   const [donations, setDonations] = useState<FoodDonation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
 
@@ -133,11 +135,16 @@ const Browse = () => {
     }
   };
 
-  const filteredDonations = donations.filter(
-    (donation) =>
+  const filteredDonations = donations.filter((donation) => {
+    const matchesSearch =
       donation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      donation.food_type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      donation.food_type.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory =
+      categoryFilter === "all" || donation.food_type === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
 
   if (loading) {
     return (
@@ -152,15 +159,46 @@ const Browse = () => {
       <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Browse Available Food</h1>
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search by food type or title..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+          <h1 className="text-4xl font-bold mb-2">Browse Available Food</h1>
+          <p className="text-muted-foreground mb-6">Find fresh donations from your community</p>
+          
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search by food type or title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <div className="w-full md:w-64">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Filter by category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="Rice & Rice Products">Rice & Rice Products</SelectItem>
+                  <SelectItem value="Dals & Lentils">Dals & Lentils</SelectItem>
+                  <SelectItem value="Indian Vegetables">Indian Vegetables</SelectItem>
+                  <SelectItem value="Indian Fruits">Indian Fruits</SelectItem>
+                  <SelectItem value="Indian Breads">Indian Breads</SelectItem>
+                  <SelectItem value="Paneer, Curd, Ghee & Dairy">Dairy Products</SelectItem>
+                  <SelectItem value="Indian Sweets">Indian Sweets</SelectItem>
+                  <SelectItem value="Indian Snacks">Indian Snacks</SelectItem>
+                  <SelectItem value="Prepared Indian Meals">Prepared Meals</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex items-center gap-2">
+            <Badge variant="secondary" className="text-sm">
+              {filteredDonations.length} {filteredDonations.length === 1 ? 'donation' : 'donations'} found
+            </Badge>
           </div>
         </div>
 

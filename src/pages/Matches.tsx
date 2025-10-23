@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Package, Clock, User } from "lucide-react";
+import { Calendar, MapPin, Package, Clock, User, Star } from "lucide-react";
+import { RatingDialog } from "@/components/RatingDialog";
 
 interface Match {
   id: string;
@@ -41,6 +42,8 @@ export default function Matches() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("");
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -267,6 +270,36 @@ export default function Matches() {
     }
   };
 
+  const handleRateMatch = async (rating: number, feedback: string) => {
+    if (!selectedMatch) return;
+
+    try {
+      // You can store ratings in a new table or as metadata
+      toast({
+        title: "Thank you!",
+        description: `You rated this donation ${rating} stars`,
+      });
+      
+      // Optionally update match with rating info
+      const { error } = await supabase
+        .from("donation_matches")
+        .update({
+          notes: `Rating: ${rating}/5${feedback ? `. Feedback: ${feedback}` : ""}`
+        })
+        .eq("id", selectedMatch.id);
+
+      if (error) throw error;
+      
+      fetchMatches();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -407,6 +440,20 @@ export default function Matches() {
                   )}
 
                   <div className="flex gap-2 flex-wrap">
+                    {match.status === "completed" && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setRatingDialogOpen(true);
+                        }}
+                        className="gap-2"
+                      >
+                        <Star className="w-4 h-4" />
+                        Rate Experience
+                      </Button>
+                    )}
+
                     {userRole === "volunteer" && match.status === "confirmed" && !match.volunteer_profile && (
                       <Button onClick={() => volunteerPickup(match.id)}>
                         Accept Delivery
@@ -446,6 +493,16 @@ export default function Matches() {
             ))}
           </div>
         )}
+
+        <RatingDialog
+          isOpen={ratingDialogOpen}
+          onClose={() => {
+            setRatingDialogOpen(false);
+            setSelectedMatch(null);
+          }}
+          onSubmit={handleRateMatch}
+          title={selectedMatch?.donation.title || ""}
+        />
       </div>
     </div>
   );

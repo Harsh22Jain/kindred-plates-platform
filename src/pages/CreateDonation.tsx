@@ -47,6 +47,7 @@ export default function CreateDonation() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -58,6 +59,18 @@ export default function CreateDonation() {
     pickup_time_start: "",
     pickup_time_end: "",
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -417,35 +430,51 @@ export default function CreateDonation() {
 
               <div>
                 <Label htmlFor="image">Food Image</Label>
-                <div className="mt-2">
+                <div className="mt-2 space-y-4">
+                  {imagePreview && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-border">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+                  
                   <label
                     htmlFor="image"
                     className="flex items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
                   >
-                    {imageFile ? (
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">
+                    <div className="flex flex-col items-center">
+                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        {imageFile ? "Change image" : "Click to upload image"}
+                      </p>
+                      {imageFile && (
+                        <p className="text-xs text-muted-foreground mt-1">
                           {imageFile.name}
                         </p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center">
-                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          Click to upload image
-                        </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </label>
                   <Input
                     id="image"
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) setImageFile(file);
-                    }}
+                    onChange={handleImageChange}
                   />
                 </div>
               </div>
