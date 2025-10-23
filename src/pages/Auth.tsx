@@ -71,7 +71,7 @@ const Auth = () => {
 
           toast({
             title: "Account created!",
-            description: "Welcome to FoodShare. Redirecting to dashboard...",
+            description: "Welcome to NourishNet. Redirecting to dashboard...",
           });
 
           navigate("/dashboard");
@@ -110,7 +110,7 @@ const Auth = () => {
             <Heart className="w-12 h-12 text-primary" />
           </div>
           <CardTitle className="text-2xl">
-            {isSignUp ? "Join FoodShare" : "Welcome Back"}
+            {isSignUp ? "Join NourishNet" : "Welcome Back"}
           </CardTitle>
           <CardDescription>
             {isSignUp

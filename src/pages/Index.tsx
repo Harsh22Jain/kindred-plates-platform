@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Users, Truck, Shield, CheckCircle, TrendingUp, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import heroImage from "@/assets/hero-food-sharing.jpg";
+import heroImage from "@/assets/hero-nourishnet.jpg";
 
 const Index = () => {
   return (
@@ -77,7 +77,7 @@ const Index = () => {
               <CheckCircle className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">Simple & Effective Process</span>
             </div>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">How FoodShare Works</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4">How NourishNet Works</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Our platform makes food redistribution simple, efficient, and impactful in just four easy steps
             </p>
@@ -196,11 +196,11 @@ const Index = () => {
                 Ready to Make a Difference?
               </h2>
               <p className="text-xl mb-10 max-w-2xl mx-auto opacity-95 leading-relaxed">
-                Join our community of donors, recipients, and volunteers working together to end food waste and hunger.
+                Join our community of donors, recipients, and volunteers working together to end food waste and hunger in India.
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
                 <Button asChild size="lg" variant="secondary" className="shadow-medium hover:shadow-strong transition-all bg-white text-primary hover:bg-white/90">
-                  <Link to="/auth?mode=signup">Join FoodShare Today</Link>
+                  <Link to="/auth?mode=signup">Join NourishNet Today</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                   <Link to="/browse">Explore Donations</Link>

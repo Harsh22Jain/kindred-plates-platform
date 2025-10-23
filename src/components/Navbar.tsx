@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { Heart, LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
+import logo from "@/assets/nourishnet-logo.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -32,9 +33,9 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <Heart className="text-primary" />
-          <span>FoodShare</span>
+        <Link to="/" className="flex items-center gap-3 font-bold text-xl hover:opacity-80 transition-opacity">
+          <img src={logo} alt="NourishNet Logo" className="h-10 w-10" />
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">NourishNet</span>
         </Link>
 
         <div className="flex items-center gap-4">

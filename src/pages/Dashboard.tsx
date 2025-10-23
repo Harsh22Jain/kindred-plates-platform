@@ -189,7 +189,7 @@ const Dashboard = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome back! Here's what's happening with your FoodShare activity.
+            Welcome back! Here's what's happening with your NourishNet activity.
           </p>
         </div>
 
