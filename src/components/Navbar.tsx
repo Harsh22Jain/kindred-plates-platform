@@ -53,6 +53,9 @@ const Navbar = () => {
                 <Link to="/matches">Matches</Link>
               </Button>
               <Button asChild variant="ghost">
+                <Link to="/reviews">Reviews</Link>
+              </Button>
+              <Button asChild variant="ghost">
                 <Link to="/profile">
                   <UserIcon className="w-4 h-4 mr-2" />
                   Profile

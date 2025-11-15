@@ -6,23 +6,8 @@ import { Star } from 'lucide-react';
 import { format } from 'date-fns';
 import Navbar from '@/components/Navbar';
 
-interface Rating {
-  id: string;
-  rating: number;
-  feedback: string | null;
-  created_at: string;
-  user: {
-    full_name: string;
-  };
-  match: {
-    donation: {
-      title: string;
-    };
-  };
-}
-
 const Reviews = () => {
-  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,24 +16,47 @@ const Reviews = () => {
 
   const fetchRatings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: ratingsData, error: ratingsError } = await supabase
         .from('ratings')
-        .select(`
-          id,
-          rating,
-          feedback,
-          created_at,
-          user:user_id (full_name),
-          match:match_id (
-            donation:donation_id (
-              title
-            )
-          )
-        `)
+        .select('id, rating, feedback, created_at, user_id, match_id')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setRatings(data || []);
+      if (ratingsError) throw ratingsError;
+
+      const enrichedRatings = await Promise.all(
+        (ratingsData || []).map(async (rating) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', rating.user_id)
+            .single();
+
+          const { data: match } = await supabase
+            .from('donation_matches')
+            .select('donation_id')
+            .eq('id', rating.match_id)
+            .single();
+
+          let donationTitle = 'Donation';
+          if (match) {
+            const { data: donation } = await supabase
+              .from('food_donations')
+              .select('title')
+              .eq('id', match.donation_id)
+              .single();
+            
+            donationTitle = donation?.title || 'Donation';
+          }
+
+          return {
+            ...rating,
+            userName: profile?.full_name || 'Anonymous',
+            donationTitle
+          };
+        })
+      );
+
+      setRatings(enrichedRatings);
     } catch (error) {
       console.error('Error fetching ratings:', error);
     } finally {
@@ -77,7 +85,7 @@ const Reviews = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pt-24">
           <p className="text-center text-muted-foreground">Loading reviews...</p>
         </div>
       </div>
@@ -87,7 +95,7 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-24">
         <h1 className="text-3xl font-bold mb-8 text-foreground">Community Reviews</h1>
 
         {ratings.length === 0 ? (
@@ -104,12 +112,12 @@ const Reviews = () => {
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar>
                       <AvatarFallback>
-                        {rating.user?.full_name?.[0] || 'U'}
+                        {rating.userName[0] || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <p className="font-semibold text-foreground">
-                        {rating.user?.full_name || 'Anonymous'}
+                        {rating.userName}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {format(new Date(rating.created_at), 'MMM d, yyyy')}
@@ -120,7 +128,7 @@ const Reviews = () => {
                 </CardHeader>
                 <CardContent>
                   <CardTitle className="text-lg mb-2 text-foreground">
-                    {rating.match?.donation?.title || 'Donation'}
+                    {rating.donationTitle}
                   </CardTitle>
                   {rating.feedback && (
                     <p className="text-muted-foreground text-sm">
